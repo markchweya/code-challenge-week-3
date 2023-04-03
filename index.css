@@ -13,7 +13,7 @@ body {
 .allMovies {
     height: 100%;
     width: 40%;
-    background-color: rgb(64, 62, 69);
+    background-color:pink;
     border-right: 10px solid black;
     overflow-y: auto;
 }
@@ -40,7 +40,7 @@ body {
 .singleMovie {
     height: 100%;
     width: 100%;
-    background-color: rgb(135, 76, 76);
+    background-color:pink;
 }
 
 
@@ -97,4 +97,9 @@ body {
 .allMovies {
     color: #e4e4e4;
     font-style: italic;
+}
+.buyticket{
+    padding: 30px;
+    background-color: blue;
+    color: white;
 }

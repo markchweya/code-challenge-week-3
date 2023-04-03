@@ -1,100 +1,76 @@
-script.js
-const movieList = document.getElementById('movie-list')
-const movieContainer = document.getElementById('movie-details')
-document.addEventListener('DOMContentLoaded', () => {
-    handleGet();
-    movieDetails()
+displayAllMovies();
 
-})
-function handleGet() {
-    fetch('http://localhost:3000/films')
-        .then((res) => {
-            return res.json()
+
+async function displayAllMovies() {
+    const allMovies = document.querySelector('.allMovies');
+    await fetch('https://code-challenge-3-orpin.vercel.app/db/db.json')
+        .then(res => res.json())
+        .then(res => {
+            console.log(res);
+            res = res.films
+            res.forEach(element => {
+                console.log(element)
+                const singlePoster = document.createElement('div');
+                singlePoster.classList.add('singlePoster');
+                singlePoster.innerHTML = `
+                    <img src="${element.poster}" alt="">
+                    <h3 class="tittle">${element.title}</h3>
+                `
+                allMovies.append(singlePoster);
+            });
         })
-        .then(data =>
-            createMovieList(data),
-           )
-}
+        .catch(err => console.log(err.message))
 
-function createMovieList(data) {
-    data.forEach((data) => {
-        const li = document.createElement('li');
-        li.textContent = data.title;
-        movieList.appendChild(li)
-    })
-    
-}
-function movieDetails (){
-    fetch('http://localhost:3000/films')
-    .then((res) => {
-        return res.json()
-    })
-    .then(data =>
-        viewMovieDetails(data),
-  )
-}
-function viewMovieDetails (data) {
-
-    data.forEach((data) => {
-
-        const movieCard = document.createElement('div');
-
-        movieContainer.appendChild(movieCard);
-
-        const moviePoster = document.createElement('img');
-
-        moviePoster.setAttribute('src', data.poster);
-
-        movieCard.appendChild(moviePoster);
-
-        const movieTitle = document.createElement('h1')
-
-        movieTitle.textContent = data.title;
-
-        movieCard.appendChild(movieTitle)
-
-        const movieRuntime = document.createElement('p');
-
-        movieRuntime.textContent = `Runtime: ${data.runtime} minutes`;
-
-        movieCard.appendChild(movieRuntime);
-
-        const movieShowtime = document.createElement('p');
-
-        movieShowtime.textContent = `Showtime: ${data.showtime}.`
-
-        movieCard.appendChild(movieShowtime);
-
-        const buyTicketButton = document.createElement('button');
-
-        buyTicketButton.innerHTML = 'Buy Ticket'; 
-
-        let availableTickets = document.createElement('p')
-        
-            buyTicketButton.addEventListener('click', () => {
-
-            let tickets = (parseInt(data.capacity - data.tickets_sold));
-
-            tickets--;  
-                     
-                if (tickets<=0){
-
-                availableTickets.textContent = "Sold Out"
-
-                        }
-        availableTickets.textContent = 'Available Tickets: ' + tickets;
-
-        movieCard.appendChild(availableTickets) 
-        
-        
-                    });
-
-
-                    
-        movieCard.appendChild(buyTicketButton);
-        
-
+    const singlePoster = document.querySelectorAll('.singlePoster');
+    getSingleMovie();
+    singlePoster.forEach((element, index) => {
+        element.addEventListener('click', () => {
+            getSingleMovie(index);
         })
-        
-        
-    }
+    })
+}
+
+
+function calculateAvailabeTickets(capacity, ticketsSold) {
+    return capacity - ticketsSold;
+}
+
+async function getSingleMovie(index=0) {
+    let ticketsSold;
+    await fetch('https://code-challenge-3-orpin.vercel.app/db/db.json')
+        .then(res => res.json())
+        .then(res => {
+            res = res.films[index]
+            ticketsSold = res.tickets_sold;
+            const singleMovie = document.querySelector('.singleMovie');
+            singleMovie.innerHTML = `
+                
+                <img src="${res.poster}">
+                <div class="imgDetails">
+                    <p class="description">${res.description}</p>
+                    <div>
+                        <h3>Show Time: </h3>
+                        <span class="showTime">${res.showtime}</span>
+                        <h3>Run time: </h3>
+                        <span class="runTime">${res.runtime}</span>
+                    </div>
+                </div>
+                <div class="tickets">
+                    <button type="button" class="buyTicket" >Purchase ticket</button>
+                    <h3 class="availableTickets">Available Tickets: <span>${calculateAvailabeTickets(res.capacity, res.tickets_sold)}</span></h3>
+                </div>
+            `
+            const buyTicket = document.querySelector('button');
+            console.log(buyTicket)
+            const availableTickets = document.querySelector('.availableTickets span')
+            buyTicket.addEventListener('click', () => {
+                console.log('clicked')
+                let number = parseInt(availableTickets.textContent)
+                if (number === 1) {
+                    const tickets = document.querySelector('.tickets');
+                    tickets.textContent = 'SOLD OUT!!'
+                }
+                number-=1
+                availableTickets.textContent = number    
+            })
+        })}
